@@ -5,7 +5,7 @@ import { Heart, Smile, Globe, TrendingUp, Users } from "lucide-react";
 export default function SheFundHome() {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-purple-100 flex flex-col items-center text-gray-800 font-inter">
+    <div className="min-h-screen bg-gradient-to-br from-pink-200 via-white to-purple-300 flex flex-col items-center text-gray-800 font-inter">
       
       {/* Navbar */}
       <nav className="w-full max-w-6xl flex justify-between items-center py-6 px-6">
@@ -24,9 +24,10 @@ export default function SheFundHome() {
       <section className="w-full max-w-6xl flex flex-col md:flex-row items-center justify-between px-6 md:px-12 mt-10">
         {/* Left Text */}
         <div className="md:w-1/2 space-y-6">
-        
+          
           <h1 className="text-4xl md:text-5xl font-bold leading-tight text-gray-900">
-            Financial Freedom {"    "}
+            <span className="text-pink-500">Your Path To {"   "}</span>
+           <span> Financial Freedom {"    "}</span>
             <span className="text-pink-500"> At Your Fingertips</span>
           </h1>
           <p className="text-gray-600 text-lg leading-relaxed font-poppins">
