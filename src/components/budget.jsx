@@ -1,141 +1,87 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { ArrowLeft, BookOpen, Plus, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Budgeting() {
-  const [incomeType, setIncomeType] = useState("Salary");
-  const [income, setIncome] = useState(0);
-  const [currency, setCurrency] = useState("KES");
+const initialBudget = [
+  { id: 1, category: 'Food', amount: 6000 },
+  { id: 2, category: 'Transport', amount: 3000 },
+  { id: 3, category: 'Rent', amount: 12000 },
+  { id: 4, category: 'Savings', amount: 4000 },
+];
 
-  const currencies = ["KES", "USD", "EUR", "GBP"];
-  const [expenses, setExpenses] = useState({
-    Food: 0,
-    Transport: 0,
-    Entertainment: 0,
-    Rent: 0,
-    Other: 0,
-  });
+export default function PersonalBudget() {
+  const [budget, setBudget] = useState(initialBudget);
+  const [category, setCategory] = useState('');
+  const [amount, setAmount] = useState('');
+  const navigate = useNavigate();
 
-  const totalExpenses = Object.values(expenses).reduce((a, b) => a + b, 0);
-  const savings = income - totalExpenses;
-  const recommendedSavings = income * 0.2;
-  const period = incomeType === "Salary" ? "Monthly" : "Weekly";
-
-  const handleExpenseChange = (key, value) => {
-    setExpenses((prev) => ({
-      ...prev,
-      [key]: parseFloat(value) || 0,
-    }));
+  const handleAdd = () => {
+    if (!category || !amount) return;
+    setBudget([...budget, { id: Date.now(), category, amount: Number(amount) }]);
+    setCategory('');
+    setAmount('');
   };
 
+  const handleDelete = (id) => {
+    setBudget(budget.filter(item => item.id !== id));
+  };
+
+  const total = budget.reduce((sum, item) => sum + item.amount, 0);
+
   return (
-    <div className="min-h-screen bg-pink-50 p-6">
-      <div className="max-w-3xl mx-auto space-y-8">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-center text-pink-600">
-          💰 Smart Budget Tracker
-        </h1>
-
-        {/* Income Card */}
-        <div className="bg-white shadow-md rounded-2xl p-6">
-          <h2 className="text-lg font-semibold mb-2">Income</h2>
-          <hr className="mb-4" />
-
-          <div className="flex flex-col md:flex-row gap-4 mb-4">
-            <select
-              value={incomeType}
-              onChange={(e) => setIncomeType(e.target.value)}
-              className="border rounded-xl p-2 w-full"
-            >
-              <option value="Salary">Salary</option>
-              <option value="Allowance">Allowance</option>
-            </select>
-
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="border rounded-xl p-2 w-full"
-            >
-              {currencies.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <input
-            type="number"
-            value={income || ""}
-            onChange={(e) => setIncome(parseFloat(e.target.value) || 0)}
-            placeholder={`Enter ${period} Income`}
-            className="border rounded-xl p-2 w-full"
-          />
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-cornsilk to-pink-200 p-8">
+      <div className="max-w-2xl mx-auto bg-white/70 backdrop-blur-lg rounded-xl shadow-lg p-6">
+        <button onClick={() => navigate(-1)} className="mb-4 flex items-center text-pink-600 hover:underline">
+          <ArrowLeft size={20} className="mr-2" /> Back
+        </button>
+        <div className="flex items-center mb-6">
+          <BookOpen size={32} className="text-pink-500 mr-3" />
+          <h1 className="text-2xl font-bold text-gray-800">Personal Budget</h1>
         </div>
-
-        {/* Expenses Card */}
-        <div className="bg-white shadow-md rounded-2xl p-6">
-          <h2 className="text-lg font-semibold mb-2">{period} Expenses</h2>
-          <hr className="mb-4" />
-
-          <div className="space-y-3">
-            {Object.keys(expenses).map((key) => (
-              <div key={key}>
-                <label className="block font-medium mb-1">
-                  {key} ({currency})
-                </label>
-                <input
-                  type="number"
-                  value={expenses[key] || ""}
-                  onChange={(e) => handleExpenseChange(key, e.target.value)}
-                  placeholder={key}
-                  className="border rounded-xl p-2 w-full"
-                />
-              </div>
+        <div className="mb-6">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Category"
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              className="border rounded-lg px-3 py-2 w-1/2 focus:outline-pink-400"
+            />
+            <input
+              type="number"
+              placeholder="Amount (KES)"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              className="border rounded-lg px-3 py-2 w-1/2 focus:outline-pink-400"
+            />
+            <button
+              onClick={handleAdd}
+              className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600 flex items-center"
+            >
+              <Plus size={18} className="mr-1" /> Add
+            </button>
+          </div>
+        </div>
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">Your Budget Breakdown</h2>
+          <ul className="divide-y divide-pink-100">
+            {budget.map(item => (
+              <li key={item.id} className="flex justify-between items-center py-2">
+                <span className="font-medium text-gray-700">{item.category}</span>
+                <span className="text-gray-600">KES {item.amount.toLocaleString()}</span>
+                <button onClick={() => handleDelete(item.id)} className="ml-2 text-pink-400 hover:text-pink-600">
+                  <Trash2 size={18} />
+                </button>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
-
-        {/* Summary Card */}
-        <div className="bg-white shadow-md rounded-2xl p-6">
-          <h2 className="text-lg font-semibold mb-2">Summary</h2>
-          <hr className="mb-4" />
-
+        <div className="text-right text-xl font-bold text-pink-700">
+          Total: KES {total.toLocaleString()}
+        </div>
+        <div className="mt-6 bg-pink-50 rounded-lg p-4 text-pink-700 shadow-inner">
           <p>
-            <strong>Income ({incomeType} - {period}):</strong> {currency}{" "}
-            {income.toFixed(0)}
-          </p>
-          <p>
-            <strong>Total Expenses:</strong> {currency}{" "}
-            {totalExpenses.toFixed(0)}
-          </p>
-          <p
-            className={`font-bold ${
-              savings < 0 ? "text-red-600" : "text-green-600"
-            }`}
-          >
-            Savings: {currency} {savings.toFixed(0)}
-          </p>
-
-          <div className="w-full bg-gray-200 rounded-full h-3 my-4">
-            <div
-              className={`h-3 rounded-full ${
-                savings < 0 ? "bg-red-400" : "bg-pink-500"
-              }`}
-              style={{
-                width: `${Math.min((totalExpenses / (income || 1)) * 100, 100)}%`,
-              }}
-            ></div>
-          </div>
-
-          <p className="font-medium">
-            {savings < 0
-              ? `⚠️ Overspending by ${currency} ${Math.abs(savings).toFixed(
-                  0
-                )} this ${period}.`
-              : savings < recommendedSavings
-              ? `💡 Try to save at least ${currency} ${recommendedSavings.toFixed(
-                  0
-                )} this ${period}.`
-              : `✅ Great! You're saving enough for this ${period}.`}
+            <strong>Tip:</strong> Track your spending, set savings goals, and adjust your budget to reach your financial dreams!
           </p>
         </div>
       </div>

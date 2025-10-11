@@ -35,7 +35,8 @@ export default function SheFundHome() {
             savings programs, and business support. Take your path to a brighter financial future.
           </p>
 
-          <button      onClick={() => navigate("/main")}
+          <button
+            onClick={() => navigate("/main")}
           className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white text-lg px-10 py-3 rounded-full shadow-md transition">
             Get Started
           </button>
