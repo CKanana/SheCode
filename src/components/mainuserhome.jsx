@@ -13,19 +13,43 @@ import {
   Settings,
   Bot,
   Send,
+  LogOut,
+  Users,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const Dashboard = () => {
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState("");
   const sectionRefs = useRef({});
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  // Get user's financial data or use defaults
+  const userData = currentUser?.financialData || {
+    totalBalance: 0,
+    savingsGoal: 10000,
+    investments: 0,
+    monthlyExpenses: 0,
+    goals: [
+      { name: "Emergency Fund", current: 0, target: 10000 },
+      { name: "Retirement Savings", current: 0, target: 50000 },
+      { name: "Investment Portfolio", current: 0, target: 15000 },
+    ],
+    recentActivity: []
+  };
 
   // Financial Cards
   const financialCards = [
     {
       title: "Total Balance",
-      amount: "KES12,450.00",
+      amount: `KES${userData.totalBalance.toLocaleString()}`,
       change: "+12.5%",
       trend: "up",
       icon: Wallet,
@@ -33,15 +57,15 @@ const Dashboard = () => {
     },
     {
       title: "Savings Goal",
-      amount: "KES8,200.00",
-      change: "of KES10,000",
+      amount: `KES${userData.goals[0]?.current.toLocaleString() || 0}`,
+      change: `of KES${userData.goals[0]?.target.toLocaleString() || 0}`,
       trend: "up",
       icon: PiggyBank,
       gradient: "from-purple-500 to-pink-500",
     },
     {
       title: "Investments",
-      amount: "KES5,750.00",
+      amount: `KES${userData.investments.toLocaleString()}`,
       change: "+8.2%",
       trend: "up",
       icon: TrendingUp,
@@ -49,7 +73,7 @@ const Dashboard = () => {
     },
     {
       title: "Monthly Expenses",
-      amount: "KES2,340.00",
+      amount: `KES${userData.monthlyExpenses.toLocaleString()}`,
       change: "-5.1%",
       trend: "down",
       icon: CreditCard,
@@ -58,14 +82,10 @@ const Dashboard = () => {
   ];
 
   // Goals
-  const goals = [
-    { name: "Emergency Fund", current: 8200, target: 10000 },
-    { name: "Retirement Savings", current: 15000, target: 50000 },
-    { name: "Investment Portfolio", current: 5750, target: 15000 },
-  ];
+  const goals = userData.goals || [];
 
   // Activity
-  const recentActivity = [
+  const recentActivity = userData.recentActivity.length > 0 ? userData.recentActivity : [
     { type: "expense", category: "Groceries", amount: "KES127.50", date: "Today" },
     { type: "income", category: "Salary", amount: "KES4,200.00", date: "Yesterday" },
     { type: "expense", category: "Shopping", amount: "KES89.00", date: "2 days ago" },
@@ -105,18 +125,33 @@ const Dashboard = () => {
               <Link to="/dashboard" className="flex items-center gap-2 text-gray-700 hover:text-pink-600">
                 <Home className="w-4 h-4" /> Dashboard
               </Link>
+              <Link to="/dependents" className="flex items-center gap-2 text-gray-700 hover:text-pink-600">
+                <Users className="w-4 h-4" /> Dependents
+              </Link>
               <Link to="/" className="flex items-center gap-2 text-gray-700 hover:text-pink-600">
                 <BookOpen className="w-4 h-4" /> Learn
               </Link>
             </nav>
           </div>
-          <Settings className="w-5 h-5 text-gray-600 cursor-pointer hover:text-pink-600" />
+          <div className="flex items-center gap-4">
+            <Settings className="w-5 h-5 text-gray-600 cursor-pointer hover:text-pink-600" />
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-gray-600 hover:text-pink-600 transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="hidden md:inline">Logout</span>
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Welcome + AI Assistant */}
       <section className="text-center mt-10 px-4">
-        <h2 className="text-3xl font-bold text-pink-600 mb-2">Hello, User </h2>
+        <h2 className="text-3xl font-bold text-pink-600 mb-2">
+          Hello, {currentUser?.firstName || 'User'}!
+        </h2>
         <p className="text-gray-600">Welcome back to SheFund!</p>
 
         <div className="max-w-xl mx-auto mt-6 bg-white shadow-md rounded-full flex items-center p-2 border border-pink-100">
@@ -214,6 +249,12 @@ const Dashboard = () => {
             </button>
             <button className="flex items-center gap-3 border border-pink-200 rounded-lg px-4 py-2 hover:bg-pink-50">
               <TrendingUp className="w-4 h-4 text-pink-600" /> View Analytics
+            </button>
+            <button 
+              onClick={() => navigate("/dependents")}
+              className="flex items-center gap-3 border border-pink-200 rounded-lg px-4 py-2 hover:bg-pink-50"
+            >
+              <Users className="w-4 h-4 text-pink-600" /> Manage Dependents
             </button>
             <button className="flex items-center gap-3 border border-pink-200 rounded-lg px-4 py-2 hover:bg-pink-50">
               <BookOpen className="w-4 h-4 text-pink-600" /> Learning Resources
