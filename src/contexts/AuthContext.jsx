@@ -30,46 +30,42 @@ export function AuthProvider({ children }) {
   // Register function
   const register = async (email, password, firstName, lastName) => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check if user already exists (simulate)
-      const existingUsers = JSON.parse(localStorage.getItem('shefund_users') || '[]');
-      const userExists = existingUsers.find(user => user.email === email);
-      
-      if (userExists) {
-        throw new Error('User already exists');
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          firstName,
+          lastName,
+          financialData: {
+            totalBalance: 0,
+            savingsGoal: 10000,
+            investments: 0,
+            monthlyExpenses: 0,
+            goals: [
+              { name: "Emergency Fund", current: 0, target: 10000 },
+              { name: "Retirement Savings", current: 0, target: 50000 },
+              { name: "Investment Portfolio", current: 0, target: 15000 },
+            ],
+            recentActivity: []
+          },
+          dependents: []
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Registration failed');
       }
 
-      // Create new user
-      const newUser = {
-        id: Date.now().toString(),
-        email,
-        firstName,
-        lastName,
-        createdAt: new Date().toISOString(),
-        financialData: {
-          totalBalance: 0,
-          savingsGoal: 10000,
-          investments: 0,
-          monthlyExpenses: 0,
-          goals: [
-            { name: "Emergency Fund", current: 0, target: 10000 },
-            { name: "Retirement Savings", current: 0, target: 50000 },
-            { name: "Investment Portfolio", current: 0, target: 15000 },
-          ],
-          recentActivity: []
-        },
-        dependents: []
-      };
-
-      // Save to localStorage (simulate database)
-      existingUsers.push(newUser);
-      localStorage.setItem('shefund_users', JSON.stringify(existingUsers));
-      localStorage.setItem('shefund_user', JSON.stringify(newUser));
-      
-      setCurrentUser(newUser);
-      return newUser;
+      const data = await response.json();
+      const user = data.user;
+      localStorage.setItem('shefund_user', JSON.stringify(user));
+      setCurrentUser(user);
+      return user;
     } catch (error) {
       throw error;
     }
@@ -78,22 +74,27 @@ export function AuthProvider({ children }) {
   // Login function
   const login = async (email, password) => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check if user exists (simulate)
-      const existingUsers = JSON.parse(localStorage.getItem('shefund_users') || '[]');
-      const user = existingUsers.find(user => user.email === email);
-      
-      if (!user) {
-        throw new Error('User not found');
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Login failed');
       }
 
-      // In a real app, you would verify the password here
-      // For demo purposes, we'll accept any password
-      
-      // Save current user session
+      const data = await response.json();
+      const user = data.user;
+      const token = data.token;
       localStorage.setItem('shefund_user', JSON.stringify(user));
+      localStorage.setItem('token', token);
       setCurrentUser(user);
       return user;
     } catch (error) {
@@ -104,6 +105,7 @@ export function AuthProvider({ children }) {
   // Logout function
   const logout = () => {
     localStorage.removeItem('shefund_user');
+    localStorage.removeItem('token');
     setCurrentUser(null);
   };
 

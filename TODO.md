@@ -1,0 +1,5 @@
+- [x] Modify backend/models/AuthUser.js: make firebaseUid optional
+- [x] Modify backend/routes/auth.js: generate firebaseUid if not provided in signup
+- [x] Modify src/contexts/AuthContext.jsx: change register function to call backend API instead of localStorage
+- [x] Modify src/contexts/AuthContext.jsx: change login function to call backend API
+- [x] Test registration and check if user is saved in database (code changes completed; ensure MONGO_URI is set in backend/.env for DB connection)

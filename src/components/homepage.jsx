@@ -35,10 +35,26 @@ export default function SheFundHome() {
             savings programs, and business support. Take your path to a brighter financial future.
           </p>
 
-          <button      onClick={() => navigate("/main")}
-          className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white text-lg px-10 py-3 rounded-full shadow-md transition">
-            Get Started
-          </button>
+          <div className="flex flex-col md:flex-row gap-4 mt-4">
+            <button
+              onClick={() => navigate("/main")}
+              className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white text-lg px-10 py-3 rounded-full shadow-md transition"
+            >
+              Get Started
+            </button>
+            <button
+              onClick={() => navigate("/login")}
+              className="bg-white text-pink-600 border border-pink-400 text-lg px-10 py-3 rounded-full shadow-md hover:bg-pink-50 transition"
+            >
+              Login
+            </button>
+            <button
+              onClick={() => navigate("/register")}
+              className="bg-white text-pink-600 border border-pink-400 text-lg px-10 py-3 rounded-full shadow-md hover:bg-pink-50 transition"
+            >
+              Sign Up
+            </button>
+          </div>
         </div>
 
         {/* Right Image Card */}

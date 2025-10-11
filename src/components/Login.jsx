@@ -1,20 +1,22 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, Heart } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
+import { Eye, EyeOff, Mail, Lock, Heart, Chrome } from "lucide-react";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
+// ...existing code...
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  // Remove useAuth destructuring; use Firebase Auth directly
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!email || !password) {
       setError("Please fill in all fields");
       return;
@@ -23,14 +25,31 @@ export default function Login() {
     try {
       setError("");
       setLoading(true);
-      await login(email, password);
-      navigate("/main");
+      // Login with Firebase Auth
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+
+      // Example: fetch protected user data from backend
+      // You can adjust the endpoint as needed
+      const response = await fetch(`http://localhost:5000/user/${email}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Login failed");
+      setSuccess("Login successful! Redirecting...");
+      setTimeout(() => navigate("/main"), 1200);
     } catch (error) {
-      setError("Failed to log in. Please check your credentials.");
+      setError(error.message);
     }
     setLoading(false);
   };
 
+  // Google sign-in not implemented
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-200 via-white to-purple-300 flex items-center justify-center p-6">
       <div className="max-w-md w-full">
@@ -49,6 +68,11 @@ export default function Login() {
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
               {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+              {success}
             </div>
           )}
 
@@ -119,6 +143,15 @@ export default function Login() {
             </button>
           </form>
 
+          {/* Divider */}
+          <div className="flex items-center my-6">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="mx-4 text-gray-500 text-sm">OR</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+
+          {/* Social Login (Google sign-in not implemented) */}
+
           {/* Sign Up Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600">
@@ -140,4 +173,3 @@ export default function Login() {
     </div>
   );
 }
-

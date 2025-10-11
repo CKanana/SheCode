@@ -1,8 +1,34 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, Heart } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
+import { Eye, EyeOff, Mail, Lock, User, Heart, Chrome } from "lucide-react";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
+// ...existing code...
 
+const PasswordStrengthMeter = ({ password }) => {
+  const getStrength = () => {
+    let score = 0;
+    if (password.length > 7) score++;
+    if (password.length > 10) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    return score;
+  };
+
+  const strength = getStrength();
+  const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
+  const strengthColors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-blue-500", "bg-green-500"];
+
+  return (
+    <div className="flex items-center gap-2 mt-2">
+      <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className={`h-2 rounded-full ${strengthColors[strength - 1] || ''}`} style={{ width: `${(strength / 5) * 100}%` }}></div>
+      </div>
+      <span className="text-xs text-gray-500 w-20 text-right">{strength > 0 ? strengthLabels[strength - 1] : ''}</span>
+    </div>
+  );
+};
 export default function Register() {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -14,8 +40,9 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  // Remove useAuth destructuring; use Firebase Auth directly
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -53,13 +80,36 @@ export default function Register() {
 
     try {
       setLoading(true);
-      await register(formData.email, formData.password, formData.firstName, formData.lastName);
-      navigate("/main");
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+
+      // Send UID and JWT to backend
+      const response = await fetch("http://localhost:5000/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          firebaseUid: user.uid,
+          email: formData.email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Signup failed");
+      setSuccess("Account created successfully! Redirecting to login...");
+      setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
-      setError("Failed to create account. Email might already be in use.");
+      setError(error.message);
     }
     setLoading(false);
   };
+
+  // Google sign-in not implemented
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-200 via-white to-purple-300 flex items-center justify-center p-6">
@@ -79,6 +129,11 @@ export default function Register() {
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
               {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+              {success}
             </div>
           )}
 
@@ -168,6 +223,7 @@ export default function Register() {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              <PasswordStrengthMeter password={formData.password} />
             </div>
 
             {/* Confirm Password Field */}
@@ -226,6 +282,15 @@ export default function Register() {
               {loading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
+          
+          {/* Divider */}
+          <div className="flex items-center my-6">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="mx-4 text-gray-500 text-sm">OR</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+
+          {/* Social Login (Google sign-in not implemented) */}
 
           {/* Sign In Link */}
           <div className="mt-6 text-center">
@@ -248,4 +313,3 @@ export default function Register() {
     </div>
   );
 }
-
