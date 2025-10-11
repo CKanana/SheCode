@@ -7,16 +7,21 @@ import HomeDashboard from "./components/homedash";
 import FinancialLiteracy from "./components/financial_lit";
 import Budgeting from "./components/budget";
 import Mainuser from "./components/mainuserhome";
+import ChamaMain from "./components/ChamaMain";
+import MyChamas from "./components/MyChamas";
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<SheFundHome />} />
         <Route path="/dashboard" element={<HomeDashboard />} />
-         <Route path="/financial-literacy" element={<FinancialLiteracy />} />
-         <Route path="/budget" element={<Budgeting />}  />
-                  <Route path="/main" element={<Mainuser />}  />
-
+        <Route path="/financial-literacy" element={<FinancialLiteracy />} />
+        <Route path="/budget" element={<Budgeting />} />
+  <Route path="/main" element={<Mainuser />} />
+  <Route path="/chama" element={<ChamaMain />} />
+  <Route path="/my-chamas" element={<MyChamas />} />
+  <Route path="/learn" element={<FinancialLiteracy />} />
+  <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
   );
