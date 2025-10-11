@@ -92,28 +92,5 @@ const WalletPage = () => {
 
 export default WalletPage;
 
-```
 
-### 2. Add the Route in `App.js`
-
-Next, let's add a route for the new wallet page in your main router file, `App.js`.
-
-```diff
---- a/c/Users/kanan/OneDrive/Desktop/SheCode/src/App.js
-+++ b/c/Users/kanan/OneDrive/Desktop/SheCode/src/App.js
-@@ -7,6 +7,7 @@
- import Mainuser from "./components/mainuserhome";
- import ChamaMain from "./components/ChamaMain";
- import MyChamas from "./components/MyChamas";
-+import WalletPage from "./components/WalletPage";
- function App() {
-   return (
-     <Router>
-@@ -17,6 +18,7 @@
-   <Route path="/my-chamas" element={<MyChamas />} />
-   <Route path="/learn" element={<FinancialLiteracy />} />
-   <Route path="/profile" element={<Profile />} />
-+  <Route path="/wallet" element={<WalletPage />} />
-       </Routes>
-     </Router>
-   );
+// ...existing code...
