@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import SidebarNav from "./SidebarNav";
 import { Users, Search, PlusCircle, Mail, ArrowLeft, Target, Clock, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -68,6 +69,13 @@ const ChamaMain = () => {
 
   const [selectedChama, setSelectedChama] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editAbout, setEditAbout] = useState("");
+  const [paymentForm, setPaymentForm] = useState(null);
+  const [paymentFormStatus, setPaymentFormStatus] = useState("");
+  const [formErrors, setFormErrors] = useState({});
+  const [actionMessage, setActionMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const chamaList = [
     {
@@ -99,15 +107,23 @@ const ChamaMain = () => {
   const handleManageChama = (chama) => {
     setSelectedChama(chama);
     setIsAdmin(chama.role === "Treasurer");
+    setEditName(chama.name);
+    setEditAbout(chama.goal);
+    setPaymentForm(null);
+    setPaymentFormStatus("");
   };
 
   const handleAppointTreasurer = (memberName) => {
-    alert(`${memberName} is now the Treasurer. You lose admin rights.`);
-    setIsAdmin(false);
+    if (window.confirm(`Are you sure you want to appoint ${memberName} as Treasurer? You will lose admin rights.`)) {
+      alert(`${memberName} is now the Treasurer. You lose admin rights.`);
+      setIsAdmin(false);
+    }
   };
 
   const handleDeleteMember = (memberName) => {
-    alert(`Deleted ${memberName}`);
+    if (window.confirm(`Are you sure you want to delete ${memberName} from this Chama? This action cannot be undone.`)) {
+      alert(`Deleted ${memberName}`);
+    }
   };
 
   const handleSendInfo = () => {
@@ -128,6 +144,62 @@ const ChamaMain = () => {
             ) : (
               <div className="bg-white/80 rounded-xl shadow-lg p-6 border border-pink-100">
                 <h3 className="text-xl font-bold text-pink-600 mb-4">{selectedChama.name} Members</h3>
+                {isAdmin && (
+                  <div className="mb-6 p-4 bg-pink-50 rounded-lg border border-pink-200">
+                    <h4 className="text-lg font-semibold text-gray-700 mb-2">Edit Chama Details</h4>
+                    <div className="mb-2">
+                      <label className="block text-sm text-gray-600 mb-1">Chama Name</label>
+                      <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full px-3 py-2 rounded border border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-200" />
+                      {formErrors.name && <p className="text-xs text-red-600 mt-1">{formErrors.name}</p>}
+                    </div>
+                    <div className="mb-2">
+                      <label className="block text-sm text-gray-600 mb-1">About/Goal</label>
+                      <textarea value={editAbout} onChange={e => setEditAbout(e.target.value)} className="w-full px-3 py-2 rounded border border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-200" />
+                      {formErrors.about && <p className="text-xs text-red-600 mt-1">{formErrors.about}</p>}
+                    </div>
+                    <div className="mb-2">
+                      <label className="block text-sm text-gray-600 mb-1">Upload Payment Form</label>
+                      <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => {
+                        setPaymentForm(e.target.files[0]);
+                        setPaymentFormStatus("Uploaded: " + e.target.files[0].name);
+                        setFormErrors(errors => ({ ...errors, payment: undefined }));
+                      }} className="w-full" />
+                      {paymentFormStatus && <p className="text-xs text-green-600 mt-1">{paymentFormStatus}</p>}
+                      {formErrors.payment && <p className="text-xs text-red-600 mt-1">{formErrors.payment}</p>}
+                      {/* Preview/placeholder for uploaded payment form */}
+                      {paymentForm && (
+                        <div className="mt-2">
+                          {paymentForm.type.startsWith('image/') ? (
+                            <img src={URL.createObjectURL(paymentForm)} alt="Payment Preview" className="max-h-32 rounded shadow border border-pink-200" />
+                          ) : (
+                            <p className="text-xs text-gray-700">File: {paymentForm.name}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      className={`bg-pink-600 text-white px-4 py-2 rounded mt-2 ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      disabled={loading}
+                      onClick={() => {
+                        setActionMessage("");
+                        let errors = {};
+                        if (!editName.trim()) errors.name = "Chama name is required.";
+                        if (!editAbout.trim()) errors.about = "About/Goal is required.";
+                        if (!paymentForm) errors.payment = "Payment form is required.";
+                        setFormErrors(errors);
+                        if (Object.keys(errors).length > 0) return;
+                        setLoading(true);
+                        setTimeout(() => {
+                          setLoading(false);
+                          setActionMessage("Chama details updated successfully!");
+                        }, 1200);
+                      }}
+                    >
+                      {loading ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    {actionMessage && <p className="text-xs text-green-600 mt-2">{actionMessage}</p>}
+                  </div>
+                )}
                 <ul className="space-y-2 mb-4">
                   {selectedChama.members.map((member, idx) => (
                     <li key={idx} className="flex justify-between items-center bg-pink-50 rounded px-3 py-2">
@@ -182,34 +254,37 @@ const ChamaMain = () => {
   };
 
   return (
-    <div className="min-h-screen font-sans bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-          <div>
-            <button onClick={() => navigate('/main')} className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-2">
-              <ArrowLeft size={16} />
-              Back to Dashboard
+    <div className="min-h-screen font-sans bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 flex">
+      <SidebarNav />
+      <div className="flex-1" style={{ marginLeft: '5rem' }}>
+        <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+            <div>
+              <button onClick={() => navigate('/main')} className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-2">
+                <ArrowLeft size={16} />
+                Back to Dashboard
+              </button>
+              <h1 className="text-4xl font-bold text-gray-800">Chama Hub</h1>
+              <p className="text-gray-500 mt-1">Manage, discover, and create your savings groups.</p>
+            </div>
+            <button onClick={() => navigate('/create-chama')} className="mt-4 sm:mt-0 flex items-center gap-2 bg-pink-600 text-white font-semibold py-2 px-5 rounded-full shadow-lg hover:bg-pink-700 transition-all">
+              <PlusCircle size={20} />
+              Create New Chama
             </button>
-            <h1 className="text-4xl font-bold text-gray-800">Chama Hub</h1>
-            <p className="text-gray-500 mt-1">Manage, discover, and create your savings groups.</p>
           </div>
-          <button onClick={() => navigate('/create-chama')} className="mt-4 sm:mt-0 flex items-center gap-2 bg-pink-600 text-white font-semibold py-2 px-5 rounded-full shadow-lg hover:bg-pink-700 transition-all">
-            <PlusCircle size={20} />
-            Create New Chama
-          </button>
-        </div>
 
-        {/* Tabs */}
-        <div className="bg-white/60 backdrop-blur-lg p-2 rounded-full flex items-center justify-start space-x-2 shadow-md mb-8">
-          <TabButton label="My Chamas" icon={<Users size={16} />} active={activeTab === 'my-chamas'} onClick={() => setActiveTab('my-chamas')} />
-          <TabButton label="Discover" icon={<Search size={16} />} active={activeTab === 'discover'} onClick={() => setActiveTab('discover')} />
-          <TabButton label="Invitations" icon={<Mail size={16} />} active={activeTab === 'invitations'} onClick={() => setActiveTab('invitations')} />
-        </div>
+          {/* Tabs */}
+          <div className="bg-white/60 backdrop-blur-lg p-2 rounded-full flex items-center justify-start space-x-2 shadow-md mb-8">
+            <TabButton label="My Chamas" icon={<Users size={16} />} active={activeTab === 'my-chamas'} onClick={() => setActiveTab('my-chamas')} />
+            <TabButton label="Discover" icon={<Search size={16} />} active={activeTab === 'discover'} onClick={() => setActiveTab('discover')} />
+            <TabButton label="Invitations" icon={<Mail size={16} />} active={activeTab === 'invitations'} onClick={() => setActiveTab('invitations')} />
+          </div>
 
-        {/* Tab Content */}
-        <div>
-          {renderContent()}
+          {/* Tab Content */}
+          <div>
+            {renderContent()}
+          </div>
         </div>
       </div>
     </div>

@@ -1,14 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  Wallet,
-  BookOpen,
-  Users,
-  Settings,
   Bell,
   MessageSquare,
-  LogOut,
   ArrowRight,
   Search,
   Plus,
@@ -17,7 +11,12 @@ import {
   Award,
   Zap,
   Lightbulb,
+  Users,
+  Wallet,
+  Calculator,
+  BookOpen,
 } from "lucide-react";
+import SidebarNav from "./SidebarNav";
 
 // Simple reusable stat card
 const StatCard = ({ icon, title, value, change }) => (
@@ -94,22 +93,9 @@ const MainUserHome = () => {
   return (
     <div className="flex bg-gray-50 min-h-screen font-sans">
       {/* Sidebar */}
-      <nav className="w-20 bg-white/70 backdrop-blur-lg shadow-lg flex flex-col items-center py-6 border-r border-pink-200">
-        <div className="text-indigo-600 font-bold text-2xl mb-10">S</div>
-        <ul className="flex flex-col items-center space-y-6">
-         <li><a href="/main" className="p-3 bg-pink-100 text-pink-600 rounded-lg" title="Dashboard"><LayoutDashboard /></a></li>
-         <li><button onClick={() => navigate('/wallet')} className="p-3 text-gray-500 hover:text-pink-600" title="Wallet"><Wallet /></button></li>
-         <li><a href="/learn" className="p-3 text-gray-500 hover:text-indigo-600" title="Learning Hub"><BookOpen /></a></li>
-         <li><button onClick={() => navigate('/chama')} className="p-3 text-gray-500 hover:text-pink-600" title="Chama Management"><Users /></button></li>
-         <li><a href="/profile" className="p-3 text-gray-500 hover:text-indigo-600" title="Profile"><Settings /></a></li>
-        </ul>
-        <div className="mt-auto flex flex-col items-center space-y-6">
-          <button onClick={() => navigate("/profile")} className="w-10 h-10 bg-pink-200 rounded-full flex items-center justify-center text-pink-700 font-bold" title="Profile & Settings">J</button>
-          <button onClick={() => navigate("/")} className="p-3 text-gray-500 hover:text-red-500" title="Logout"><LogOut /></button>
-        </div>
-      </nav>
+      <SidebarNav />
       {/* Main Content */}
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 pl-20">
         <header className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Welcome Back, Jane!</h1>
@@ -124,7 +110,9 @@ const MainUserHome = () => {
         {/* Financial Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard icon={<Wallet size={24} className="text-indigo-500" />} title="Total Balance" value="KES 85,230" change="+5.2% this month" />
-          <StatCard icon={<ShieldCheck size={24} className="text-green-500" />} title="Total Savings" value="KES 150,000" />
+          <div onClick={() => navigate('/finance')} className="cursor-pointer">
+            <StatCard icon={<Calculator size={24} className="text-pink-500" />} title="Personal Finance" value="Track & Analyze" />
+          </div>
           <StatCard icon={<Users size={24} className="text-blue-500" />} title="Active Chamas" value="2" />
           <StatCard icon={<Star size={24} className="text-yellow-500" />} title="Credit Score" value="680" change="+20 points" />
         </div>

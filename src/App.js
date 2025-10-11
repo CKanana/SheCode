@@ -1,4 +1,5 @@
 import Profile from "./components/Profile.jsx";
+import PersonalFinance from "./components/PersonalFinance";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -9,6 +10,9 @@ import Budgeting from "./components/budget";
 import Mainuser from "./components/mainuserhome";
 import ChamaMain from "./components/ChamaMain";
 import MyChamas from "./components/MyChamas";
+import CreateChama from "./CreateChama.jsx";
+import ChamaDiscovery from "./ChamaDiscovery.jsx";
+import WalletPage from "./components/WalletPage";
 function App() {
   return (
     <Router>
@@ -22,7 +26,11 @@ function App() {
   <Route path="/my-chamas" element={<MyChamas />} />
   <Route path="/learn" element={<FinancialLiteracy />} />
   <Route path="/profile" element={<Profile />} />
-      </Routes>
+  <Route path="/finance" element={<PersonalFinance />} />
+  <Route path="/create-chama" element={<CreateChama />} />
+  <Route path="/chama-discovery" element={<ChamaDiscovery />} />
+      <Route path="/wallet" element={<WalletPage />} />
+    </Routes>
     </Router>
   );
 }

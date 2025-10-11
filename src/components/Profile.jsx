@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import SidebarNav from "./SidebarNav";
 
 const initialProfile = {
   name: "",
@@ -90,6 +91,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-cornsilk to-pink-200 flex items-center justify-center backdrop-blur-lg">
+      <SidebarNav />
       <form className="bg-white/70 rounded-xl shadow-pink-300/60 p-8 w-full max-w-lg backdrop-blur-md border border-pink-100" onSubmit={handleSubmit}>
         <h2 className="text-2xl font-bold text-pink-600 mb-6 text-center">Edit Profile</h2>
         <div className="flex flex-col items-center mb-6">
