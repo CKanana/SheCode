@@ -18,6 +18,13 @@ import {
   ArrowRight,
   LogOut
 } from 'lucide-react';
+  Bot,
+  Send,
+  LogOut,
+  Users,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const StatCard = ({ icon, title, value, change }) => (
   <div className="bg-white/60 backdrop-blur-lg p-4 rounded-xl shadow-lg shadow-pink-300/60 flex flex-col justify-between border border-pink-100">
@@ -118,12 +125,44 @@ const MainDashboard = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-800">Welcome Back, Jane!</h1>
             <p className="text-gray-500">Here's your financial snapshot for today.</p>
+    <div className="min-h-screen bg-gradient-to-b from-pink-50 via-white to-purple-50 font-poppins">
+      {/* Navbar */}
+      <header className="border-b bg-white/70 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
+          <div className="flex items-center gap-8">
+            <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              SheFund
+            </Link>
+            <nav className="hidden md:flex gap-4">
+              <Link to="/dashboard" className="flex items-center gap-2 text-gray-700 hover:text-pink-600">
+                <Home className="w-4 h-4" /> Dashboard
+              </Link>
+              <Link to="/dependents" className="flex items-center gap-2 text-gray-700 hover:text-pink-600">
+                <Users className="w-4 h-4" /> Dependents
+              </Link>
+              <Link to="/" className="flex items-center gap-2 text-gray-700 hover:text-pink-600">
+                <BookOpen className="w-4 h-4" /> Learn
+              </Link>
+            </nav>
           </div>
           <div className="flex items-center space-x-4">
             <button className="p-2 bg-white rounded-full shadow-sm"><Bell size={20} className="text-gray-600" /></button>
             <button className="p-2 bg-white rounded-full shadow-sm"><MessageSquare size={20} className="text-gray-600" /></button>
           </div>
         </header>
+          <div className="flex items-center gap-4">
+            <Settings className="w-5 h-5 text-gray-600 cursor-pointer hover:text-pink-600" />
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-gray-600 hover:text-pink-600 transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="hidden md:inline">Logout</span>
+            </button>
+          </div>
+        </div>
+      </header>
 
         {/* Financial Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -133,6 +172,28 @@ const MainDashboard = () => {
           </div>
           <StatCard icon={<Users size={24} className="text-blue-500" />} title="Active Chamas" value="2" />
           <StatCard icon={<Star size={24} className="text-yellow-500" />} title="Credit Score" value="680" change="+20 points" />
+      {/* Welcome + AI Assistant */}
+      <section className="text-center mt-10 px-4">
+        <h2 className="text-3xl font-bold text-pink-600 mb-2">
+          Hello, {currentUser?.firstName || 'User'}!
+        </h2>
+        <p className="text-gray-600">Welcome back to SheFund!</p>
+
+        <div className="max-w-xl mx-auto mt-6 bg-white shadow-md rounded-full flex items-center p-2 border border-pink-100">
+          <Bot className="text-pink-500 mx-2" size={22} />
+          <input
+            type="text"
+            placeholder="Ask me anything... (e.g. 'Show my goals')"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="flex-1 color-black  px-3 py-2 focus:outline-none rounded-full"
+          />
+          <button
+            onClick={handleAsk}
+            className="bg-pink-600 hover:bg-pink-700 text-white rounded-full p-2 mr-1"
+          >
+            <Send className="w-4 h-4" />
+          </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -201,6 +262,33 @@ const MainDashboard = () => {
                 <AchievementBadge icon={<BookOpen size={32} className="text-green-800"/>} title="Budget Master" color="bg-green-200" />
               </div>
             </div>
+            );
+          })}
+        </div>
+
+        {/* Quick Actions */}
+        <div ref={(el) => (sectionRefs.current.quickActions = el)} className="bg-white rounded-2xl p-6 shadow-md">
+          <h3 className="font-semibold text-lg text-gray-800 mb-3">Quick Actions</h3>
+          <p className="text-sm text-gray-500 mb-4">Manage your finances easily</p>
+          <div className="flex flex-col gap-3">
+            <button className="flex items-center gap-3 border border-pink-200 rounded-lg px-4 py-2 hover:bg-pink-50">
+              <Plus className="w-4 h-4 text-pink-600" /> Add Transaction
+            </button>
+            <button className="flex items-center gap-3 border border-pink-200 rounded-lg px-4 py-2 hover:bg-pink-50">
+              <Target className="w-4 h-4 text-pink-600" /> Set New Goal
+            </button>
+            <button className="flex items-center gap-3 border border-pink-200 rounded-lg px-4 py-2 hover:bg-pink-50">
+              <TrendingUp className="w-4 h-4 text-pink-600" /> View Analytics
+            </button>
+            <button 
+              onClick={() => navigate("/dependents")}
+              className="flex items-center gap-3 border border-pink-200 rounded-lg px-4 py-2 hover:bg-pink-50"
+            >
+              <Users className="w-4 h-4 text-pink-600" /> Manage Dependents
+            </button>
+            <button className="flex items-center gap-3 border border-pink-200 rounded-lg px-4 py-2 hover:bg-pink-50">
+              <BookOpen className="w-4 h-4 text-pink-600" /> Learning Resources
+            </button>
           </div>
         </div>
       </main>

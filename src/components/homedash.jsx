@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCar, FaHome, FaPiggyBank, FaGraduationCap } from "react-icons/fa";
+import { LogOut, Settings } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function HomeDashboard() {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   const handleSearch = () => {
     const text = query.toLowerCase();
@@ -18,10 +26,24 @@ export default function HomeDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-100 flex flex-col items-center p-6">
-      {/* Header */}
-      <header className="text-center mt-10">
+      {/* Header with Logout */}
+      <div className="w-full max-w-5xl flex justify-end mb-4">
+        <div className="flex items-center gap-4">
+          <Settings className="w-5 h-5 text-gray-600 cursor-pointer hover:text-pink-600" />
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-gray-600 hover:text-pink-600 transition-colors"
+            title="Logout"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+      
+      <header className="text-center mt-6">
         <h1 className="text-4xl font-bold text-pink-600 drop-shadow-sm font-poppins">
-          Hello, Welcome Back 
+          Hello, {currentUser?.firstName || 'User'}! Welcome Back 
         </h1>
         <p className="text-lg text-gray-600 mt-2">
           What can I help you with today?
