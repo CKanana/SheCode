@@ -15,6 +15,7 @@ import WalletPage from "./components/WalletPage";
 import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
 import ForgotPassword from "./components/ForgotPassword.jsx";
+import ChatAiPage from "./components/ChatAiPage.jsx";
 function App() {
   return (
     <AuthProvider>
@@ -33,9 +34,10 @@ function App() {
           <Route path="/create-chama" element={<CreateChama />} />
           <Route path="/chama-discovery" element={<ChamaDiscovery />} />
           <Route path="/wallet" element={<WalletPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/register" element={<Register />} />
+  <Route path="/forgot-password" element={<ForgotPassword />} />
+  <Route path="/ai-chat" element={<ChatAiPage />} />
         </Routes>
       </Router>
     </AuthProvider>

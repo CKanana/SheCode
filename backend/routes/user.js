@@ -19,8 +19,18 @@ router.post("/", verifyFirebaseToken, async (req, res) => {
 // Fetch a user by email (protected)
 router.get("/:email", verifyFirebaseToken, async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.params.email });
-    if (!user) return res.status(404).json({ error: "User not found" });
+    let user = await User.findOne({ email: req.params.email });
+    if (!user) {
+      // Auto-create user for Google sign-in
+      const firebaseUser = req.firebaseUser;
+      user = new User({
+        firebaseUid: firebaseUser.uid,
+        email: firebaseUser.email,
+        firstName: firebaseUser.name || "",
+        lastName: "",
+      });
+      await user.save();
+    }
     res.json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });

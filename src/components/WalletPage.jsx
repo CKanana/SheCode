@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Wallet, ArrowUpRight, ArrowDownLeft, Eye, EyeOff, Send, Download, FileText, PlusCircle } from 'lucide-react';
 import SidebarNav from "./SidebarNav";
-import { Calculator, BarChart2, CheckCircle, X } from "lucide-react";
+import { Calculator, BarChart2, CheckCircle, X, Lightbulb } from "lucide-react";
 // PersonalFinance form component (inline)
 const PersonalFinanceForm = ({ onClose }) => {
   const [salary, setSalary] = useState("");
   const [expenses, setExpenses] = useState([
-    { name: "Rent", amount: "" },
+    { name: "Rent/Housing", amount: "" },
     { name: "Groceries", amount: "" },
     { name: "Utilities", amount: "" },
     { name: "Transport", amount: "" },
@@ -15,34 +15,65 @@ const PersonalFinanceForm = ({ onClose }) => {
   ]);
   const [newExpenseName, setNewExpenseName] = useState("");
   const [analysis, setAnalysis] = useState("");
-  const [showReport, setShowReport] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const handleExpenseChange = (index, value) => {
     const updated = [...expenses];
     updated[index].amount = value;
     setExpenses(updated);
   };
-  const handleAnalyze = () => {
-    const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
-    const remaining = Number(salary || 0) - totalExpenses;
-    let advice = "";
-    if (remaining > 0) {
-      advice = `Great! You have KES ${remaining.toLocaleString()} left after expenses. Consider saving or investing.`;
-    } else if (remaining === 0) {
-      advice = "You are breaking even. Try to reduce some expenses to save.";
-    } else {
-      advice = `Warning: You are overspending by KES ${Math.abs(remaining).toLocaleString()}. Review your expenses!`;
+
+  const handleAnalyze = async () => {
+    setLoading(true);
+    setAnalysis("");
+
+    // Construct a detailed prompt for the AI
+    const totalExpenses = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+    const prompt = `
+      As a friendly financial coach for a woman in Kenya, analyze the following financial data and provide 3 short, actionable suggestions.
+      One suggestion must be about how a Chama (savings group) could help her.
+      Keep the tone encouraging and simple.
+
+      Data:
+      - Monthly Income: KES ${salary}
+      - Expenses: ${expenses.map(e => `${e.name}: KES ${e.amount}`).join(', ')}
+      - Total Expenses: KES ${totalExpenses}
+      - Stated Financial Goals: "Buy a Sewing Machine", "Build an Emergency Fund"
+
+      Provide the response as a simple, unformatted text string with each suggestion on a new line, starting with a dash.
+    `;
+
+    try {
+      // This is where you would call your actual AI backend
+      // For now, we'll simulate the call and response.
+      console.log("Sending prompt to AI:", prompt);
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+
+      // Simulated AI Response
+      const simulatedResponse = `- Your transport costs are a bit high. Could you try using public transport one extra day a week to save towards your sewing machine?\n- You have a good surplus after expenses! A Chama would be a great way to commit some of that money to your emergency fund consistently.\n- You are doing great! Try to set aside KES 500 this week into a separate savings pot. Every little bit helps!`;
+      setAnalysis(simulatedResponse);
+
+    } catch (error) {
+      setAnalysis("Sorry, I couldn't generate suggestions right now. Please try again.");
+      console.error("AI analysis failed:", error);
+    } finally {
+      setLoading(false);
     }
-    setAnalysis(advice);
-    setShowReport(true);
   };
+
   const handleDownloadCSV = () => {
-    let csv = "Category,Amount (KES)\n";
+    let csv = "Personal Finance Analysis\n";
+    csv += `Monthly Salary (KES),${salary}\n`;
+    csv += "Expenses\n";
+    csv += "Category,Amount (KES)\n";
     expenses.forEach(exp => {
       csv += `${exp.name},${exp.amount}\n`;
     });
-    csv += `Total Salary,${salary}\n`;
-    csv += `Total Expenses,${expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0)}\n`;
-    csv += `Analysis,${analysis}\n`;
+    const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+    csv += `Total Expenses,${totalExpenses}\n`;
+    csv += "\nAI Analysis\n";
+    csv += analysis.split('\n').map(line => `"${line}"`).join("\n");
+    csv += "\n";
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -54,7 +85,7 @@ const PersonalFinanceForm = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold text-pink-700 mb-6 flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
           <Calculator className="text-pink-500" /> Personal Finance
         </h2>
         <div className="mb-6">
@@ -72,10 +103,10 @@ const PersonalFinanceForm = ({ onClose }) => {
           {expenses.map((exp, idx) => (
             <div key={exp.name + idx} className="flex items-center gap-2 mb-2">
               <input
-                type="text"
+                type="text" 
                 className="flex-1 p-2 border border-gray-200 rounded-lg"
                 value={exp.name}
-                readOnly={idx < 5}
+                readOnly={idx < 4} // Make the original ones read-only
                 onChange={e => {
                   if (idx >= 5) {
                     const updated = [...expenses];
@@ -117,15 +148,19 @@ const PersonalFinanceForm = ({ onClose }) => {
           </div>
         </div>
         <button
-          className="w-full py-3 bg-pink-600 text-white font-bold rounded-lg shadow-lg flex items-center justify-center gap-2 hover:bg-pink-700 transition"
+          className="w-full py-3 bg-pink-600 text-white font-bold rounded-lg shadow-lg flex items-center justify-center gap-2 hover:bg-pink-700 transition disabled:opacity-50"
           onClick={handleAnalyze}
+          disabled={loading}
         >
-          <BarChart2 /> Analyze
+          {loading ? "Analyzing..." : <><BarChart2 /> Get AI Suggestions</>}
         </button>
-        {showReport && (
-          <div className="mt-6 p-4 bg-indigo-50 rounded-lg text-indigo-700 flex flex-col gap-2">
-            <div className="flex items-center gap-2"><CheckCircle className="text-green-500" /><span>{analysis}</span></div>
-            <button className="mt-4 py-2 px-4 bg-pink-600 text-white rounded-lg font-semibold hover:bg-pink-700" onClick={handleDownloadCSV}>Download Report as CSV</button>
+        {analysis && (
+          <div className="mt-6 p-4 bg-indigo-50 rounded-lg">
+            <h3 className="font-semibold text-indigo-800 flex items-center gap-2 mb-2"><Lightbulb size={18}/> Your AI-Powered Suggestions:</h3>
+            <div className="text-indigo-700 text-sm space-y-2 whitespace-pre-line">
+              {analysis}
+            </div>
+            <button className="mt-4 text-xs font-semibold text-pink-600 hover:underline" onClick={handleDownloadCSV}>Export as Excel (CSV)</button>
           </div>
         )}
         <button className="w-full py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold mt-4" onClick={onClose}>Close</button>

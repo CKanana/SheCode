@@ -17,6 +17,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import SidebarNav from "./SidebarNav";
+import CreateChamaForm from "./CreateChamaForm";
 
 // Simple reusable stat card
 const StatCard = ({ icon, title, value, change }) => (
@@ -83,12 +84,42 @@ const ActionItem = ({ icon, title, description, path, navigate }) => (
 const MainUserHome = () => {
   const navigate = useNavigate();
   const [isChamaMenuOpen, setIsChamaMenuOpen] = useState(false);
+  const [showCreateChama, setShowCreateChama] = useState(false);
+  const [user, setUser] = useState(null);
 
   const chamaActions = [
     { icon: <Search size={20} />, label: "Discover", path: "/chama-discovery" },
     { icon: <Plus size={20} />, label: "Create", path: "/create-chama" },
     { icon: <Users size={20} />, label: "My Chamas", path: "/my-chamas" },
   ];
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiTip, setAiTip] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+
+  React.useEffect(() => {
+    // Try to get user info from localStorage or backend
+    const fetchUser = async () => {
+      // Try localStorage first (if you store user info there)
+      const localUser = JSON.parse(localStorage.getItem('user'));
+      if (localUser && localUser.firstName) {
+        setUser(localUser);
+        return;
+      }
+      // Otherwise, fetch from backend (adjust endpoint as needed)
+      try {
+        const email = localUser?.email || '';
+        if (!email) return;
+        const response = await fetch(`http://localhost:5000/user/${email}`);
+        const data = await response.json();
+        if (data && data.firstName) setUser(data);
+      } catch (err) {
+        // fallback: show generic name
+        setUser({ firstName: 'User' });
+      }
+    };
+    fetchUser();
+  }, []);
 
   return (
     <div className="flex bg-gray-50 min-h-screen font-sans">
@@ -98,8 +129,9 @@ const MainUserHome = () => {
       <main className="flex-1 p-8 pl-20">
         <header className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Welcome Back, Jane!</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Welcome Back, {user?.firstName || 'User'}!</h1>
             <p className="text-gray-600">Here's your financial snapshot for today.</p>
+            {/* '+ Create Chama' button removed as requested */}
           </div>
           <div className="flex items-center space-x-4">
             <button className="p-2 bg-white rounded-full shadow-sm"><Bell size={20} className="text-gray-600" /></button>
@@ -155,19 +187,46 @@ const MainUserHome = () => {
             <div className="bg-white p-6 rounded-xl shadow-sm">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <Lightbulb className="text-yellow-500 mr-2" />
-                    Mama Pesa's AI Tip
+                    SheFund AI Tip
                 </h2>
-                <p className="text-gray-600 text-sm mb-4">
-                    "You're KES 15,000 away from your sewing machine goal! Consider adding an extra KES 1,000 from your budget this week to reach it faster."
+        <p className="text-gray-600 text-sm mb-4">
+          "You're KES 15,000 away from your sewing machine goal! Consider adding an extra KES 1,000 from your budget this week to reach it faster."
                 </p>
                 <div className="relative">
                     <input
                         type="text"
                         placeholder="Ask me anything..."
                         className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                        value={aiPrompt}
+                        onChange={e => setAiPrompt(e.target.value)}
+                        onKeyDown={async e => {
+                          if (e.key === 'Enter' && aiPrompt.trim()) {
+                            setAiLoading(true);
+                            setAiError("");
+                            try {
+                              const response = await fetch("http://localhost:5000/api/ai/complete", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ prompt: aiPrompt, model: "gpt-3.5-turbo" })
+                              });
+                              const data = await response.json();
+                              setAiTip(data.choices?.[0]?.message?.content || "No tip returned.");
+                              navigate('/ai-chat');
+                            } catch (err) {
+                              setAiError("Failed to get AI tip.");
+                            }
+                            setAiLoading(false);
+                          }
+                        }}
                     />
-                    <Zap className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Zap 
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer" 
+                      onClick={() => navigate('/ai-chat')}
+                    />
                 </div>
+                {aiLoading && <div className="text-gray-400 mt-2">Loading AI tip...</div>}
+                {aiError && <div className="text-red-500 mt-2">{aiError}</div>}
+                {aiTip && <div className="text-indigo-700 mt-2 font-medium">{aiTip}</div>}
             </div>
 
             {/* Achievements */}
@@ -187,19 +246,16 @@ const MainUserHome = () => {
           <div className="relative">
             {isChamaMenuOpen && (
               <div className="absolute bottom-16 right-0 flex flex-col items-end space-y-2">
-                {chamaActions.map((action, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <span className="bg-white text-sm text-gray-700 px-3 py-1 rounded-md shadow-sm">
-                      {action.label}
-                    </span>
-                    <button
-                      onClick={() => navigate(action.path)}
-                      className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100"
-                    >
-                      {action.icon}
-                    </button>
-                  </div>
-                ))}
+                <div className="flex items-center space-x-2">
+                  <span className="bg-white text-sm text-gray-700 px-3 py-1 rounded-md shadow-sm">Create Chama</span>
+                  <button
+                    onClick={() => setShowCreateChama(true)}
+                    className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-100"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
+                {/* Add other chama actions here if needed */}
               </div>
             )}
             <button
@@ -208,6 +264,12 @@ const MainUserHome = () => {
             >
               <Users size={28} />
             </button>
+            {showCreateChama && (
+              <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+                <CreateChamaForm onCreate={() => setShowCreateChama(false)} />
+                <button className="absolute top-8 right-8 text-white text-xl font-bold" onClick={() => setShowCreateChama(false)}>×</button>
+              </div>
+            )}
           </div>
         </div>
       </main>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, Heart, Chrome } from "lucide-react";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from "../firebase";
 // ...existing code...
 
@@ -83,6 +83,7 @@ export default function Register() {
       // Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       const user = userCredential.user;
+      await sendEmailVerification(user);
       const idToken = await user.getIdToken();
 
       // Send UID and JWT to backend
@@ -101,8 +102,8 @@ export default function Register() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Signup failed");
-      setSuccess("Account created successfully! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1500);
+      setSuccess("Account created! Please check your email to verify your account.");
+      setTimeout(() => navigate("/login"), 2500);
     } catch (error) {
       setError(error.message);
     }

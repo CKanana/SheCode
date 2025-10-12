@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, Heart, Chrome } from "lucide-react";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, signInWithGoogle } from "../firebase";
 // ...existing code...
 
 export default function Login() {
@@ -28,6 +28,11 @@ export default function Login() {
       // Login with Firebase Auth
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      if (!user.emailVerified) {
+        setError("Please verify your email before logging in.");
+        setLoading(false);
+        return;
+      }
       const idToken = await user.getIdToken();
 
       // Example: fetch protected user data from backend
@@ -49,7 +54,36 @@ export default function Login() {
     setLoading(false);
   };
 
-  // Google sign-in not implemented
+  // Google sign-in handler
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const result = await signInWithGoogle();
+      const user = result.user;
+      if (!user.emailVerified) {
+        setError("Please verify your email before logging in.");
+        setLoading(false);
+        return;
+      }
+      const idToken = await user.getIdToken();
+      // Example: fetch protected user data from backend
+      const response = await fetch(`http://localhost:5000/user/${user.email}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Login failed");
+      setSuccess("Login successful! Redirecting...");
+      setTimeout(() => navigate("/main"), 1200);
+    } catch (error) {
+      setError(error.message);
+    }
+    setLoading(false);
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-200 via-white to-purple-300 flex items-center justify-center p-6">
       <div className="max-w-md w-full">
@@ -150,7 +184,13 @@ export default function Login() {
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
 
-          {/* Social Login (Google sign-in not implemented) */}
+          {/* Social Login */}
+          <button
+            onClick={handleGoogleSignIn}
+            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg transition duration-200 hover:bg-gray-50"
+          >
+            <Chrome className="w-5 h-5" /> Sign In with Google
+          </button>
 
           {/* Sign Up Link */}
           <div className="mt-6 text-center">

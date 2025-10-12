@@ -1,24 +1,23 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Heart, ArrowLeft } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../firebase";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { resetPassword } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
       setMessage("");
       setError("");
       setLoading(true);
-      await resetPassword(email);
-      setMessage("Check your inbox for further instructions.");
+      await sendPasswordResetEmail(auth, email);
+      setMessage("Password reset email sent! Please check your inbox.");
     } catch {
       setError("Failed to reset password. Please check the email address.");
     }
