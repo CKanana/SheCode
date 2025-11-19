@@ -6,6 +6,7 @@ import {
   Users,
   Settings,
   LogOut,
+  Wallet,
 } from "lucide-react";
 
 const SidebarNav = ({ showLogout = true }) => {

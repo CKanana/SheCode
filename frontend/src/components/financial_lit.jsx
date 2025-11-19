@@ -213,14 +213,14 @@ const FinancialLiteracy = () => {
                                   <span className="font-medium text-sm">Financial Calculators</span>
                               </div>
                               <ArrowRight size={16} className="text-gray-400"/>
-                          </a>
+                          </button>
                           <button className="flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg">
                               <div className="flex items-center gap-3">
                                   <Book size={20} className="text-indigo-600"/>
                                   <span className="font-medium text-sm">Glossary of Terms</span>
                               </div>
                               <ArrowRight size={16} className="text-gray-400"/>
-                          </a>
+                          </button>
                       </div>
                   </section>
               </div>

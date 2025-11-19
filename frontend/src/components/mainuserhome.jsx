@@ -12,6 +12,8 @@ import {
   Lightbulb,
   Users,
   BookOpen,
+  Wallet,
+  Calculator,
 } from "lucide-react";
 import SidebarNav from "./SidebarNav";
 import CreateChamaForm from "./CreateChamaForm";

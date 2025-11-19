@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowUpRight, ArrowDownLeft, Eye, EyeOff, Send, Download, FileText, PlusCircle } from 'lucide-react';
 import SidebarNav from "./SidebarNav";
 import { BarChart2, X, Lightbulb } from "lucide-react";
+import { Calculator } from "lucide-react";
 // PersonalFinance form component (inline)
 const PersonalFinanceForm = ({ onClose }) => {
   const [salary, setSalary] = useState("");
