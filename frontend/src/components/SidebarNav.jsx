@@ -2,11 +2,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
-  Wallet,
   BookOpen,
   Users,
   Settings,
-  Calculator,
   LogOut,
 } from "lucide-react";
 

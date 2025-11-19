@@ -6,14 +6,11 @@ import {
   ArrowRight,
   Search,
   Plus,
-  ShieldCheck,
   Star,
   Award,
   Zap,
   Lightbulb,
   Users,
-  Wallet,
-  Calculator,
   BookOpen,
 } from "lucide-react";
 import SidebarNav from "./SidebarNav";
@@ -87,11 +84,7 @@ const MainUserHome = () => {
   const [showCreateChama, setShowCreateChama] = useState(false);
   const [user, setUser] = useState(null);
 
-  const chamaActions = [
-    { icon: <Search size={20} />, label: "Discover", path: "/chama-discovery" },
-    { icon: <Plus size={20} />, label: "Create", path: "/create-chama" },
-    { icon: <Users size={20} />, label: "My Chamas", path: "/my-chamas" },
-  ];
+  // const chamaActions = [ ... ]; // Unused
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiTip, setAiTip] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
@@ -110,7 +103,8 @@ const MainUserHome = () => {
       try {
         const email = localUser?.email || '';
         if (!email) return;
-        const response = await fetch(`http://localhost:5000/user/${email}`);
+        const apiUrl = process.env.REACT_APP_API_URL;
+        const response = await fetch(`${apiUrl}/user/${email}`);
         const data = await response.json();
         if (data && data.firstName) setUser(data);
       } catch (err) {
@@ -204,7 +198,8 @@ const MainUserHome = () => {
                             setAiLoading(true);
                             setAiError("");
                             try {
-                              const response = await fetch("http://localhost:5000/api/ai/complete", {
+                              const apiUrl = process.env.REACT_APP_API_URL;
+                              const response = await fetch(`${apiUrl}/api/ai/complete`, {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ prompt: aiPrompt, model: "gpt-3.5-turbo" })

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from "react";
 
 const MyChamas = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Unused
   const [chamas, setChamas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -15,7 +15,8 @@ const MyChamas = () => {
       setError("");
       try {
         // TODO: Add auth token if needed
-        const response = await fetch("http://localhost:5000/api/chama/all");
+        const apiUrl = process.env.REACT_APP_API_URL;
+        const response = await fetch(`${apiUrl}/api/chama/all`);
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Failed to fetch chamas");
         setChamas(data);

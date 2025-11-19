@@ -39,7 +39,8 @@ export default function PersonalBudget() {
     try {
       const expenses = {};
       budget.forEach(item => { expenses[item.category] = item.amount; });
-      const response = await fetch('http://localhost:5000/api/ai/finance-analyze', {
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${apiUrl}/api/ai/finance-analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ salary: Number(salary), expenses })

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, Heart, Chrome } from "lucide-react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { Eye, EyeOff, Mail, Lock, Heart } from "lucide-react";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, signInWithGoogle } from "../firebase";
 // ...existing code...
 
@@ -37,7 +37,8 @@ export default function Login() {
 
       // Example: fetch protected user data from backend
       // You can adjust the endpoint as needed
-      const response = await fetch(`http://localhost:5000/user/${email}`, {
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${apiUrl}/user/${email}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +69,8 @@ export default function Login() {
       }
       const idToken = await user.getIdToken();
       // Example: fetch protected user data from backend
-      const response = await fetch(`http://localhost:5000/user/${user.email}`, {
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${apiUrl}/user/${user.email}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

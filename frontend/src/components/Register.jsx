@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, Heart, Chrome } from "lucide-react";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { Eye, EyeOff, Mail, Lock, User, Heart } from "lucide-react";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from "../firebase";
 // ...existing code...
 
@@ -87,7 +87,8 @@ export default function Register() {
       const idToken = await user.getIdToken();
 
       // Send UID and JWT to backend
-      const response = await fetch("http://localhost:5000/user", {
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${apiUrl}/user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

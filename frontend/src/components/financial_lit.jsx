@@ -207,14 +207,14 @@ const FinancialLiteracy = () => {
                   <section className="bg-white/70 p-6 rounded-xl shadow-pink-300/60 backdrop-blur-md border border-pink-100">
                       <h3 className="text-lg font-semibold text-gray-800 mb-4">Resource Hub</h3>
                       <div className="space-y-3">
-                          <a href="#" className="flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg">
+                          <button className="flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg">
                               <div className="flex items-center gap-3">
                                   <Calculator size={20} className="text-indigo-600"/>
                                   <span className="font-medium text-sm">Financial Calculators</span>
                               </div>
                               <ArrowRight size={16} className="text-gray-400"/>
                           </a>
-                          <a href="#" className="flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg">
+                          <button className="flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg">
                               <div className="flex items-center gap-3">
                                   <Book size={20} className="text-indigo-600"/>
                                   <span className="font-medium text-sm">Glossary of Terms</span>

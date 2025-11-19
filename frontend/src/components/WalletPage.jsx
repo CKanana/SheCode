@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Wallet, ArrowUpRight, ArrowDownLeft, Eye, EyeOff, Send, Download, FileText, PlusCircle } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, ArrowDownLeft, Eye, EyeOff, Send, Download, FileText, PlusCircle } from 'lucide-react';
 import SidebarNav from "./SidebarNav";
-import { Calculator, BarChart2, CheckCircle, X, Lightbulb } from "lucide-react";
+import { BarChart2, X, Lightbulb } from "lucide-react";
 // PersonalFinance form component (inline)
 const PersonalFinanceForm = ({ onClose }) => {
   const [salary, setSalary] = useState("");

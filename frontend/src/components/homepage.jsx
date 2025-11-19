@@ -13,10 +13,10 @@ export default function SheFundHome() {
           <h1 className="text-2xl font-bold text-pink-600">SheFund</h1>
         </div>
         <div className="flex gap-6 text-gray-600 font-medium ">
-          <a href="#home" className="hover:text-pink-600 transition">Home</a>
-          <a href="#programs" className="hover:text-pink-600 transition">Programs</a>
-          <a href="#resources" className="hover:text-pink-600 transition">Resources</a>
-          <a href="#contact" className="hover:text-pink-600 transition">Contact</a>
+          <a href="/" className="hover:text-pink-600 transition">Home</a>
+          <a href="/programs" className="hover:text-pink-600 transition">Programs</a>
+          <a href="/resources" className="hover:text-pink-600 transition">Resources</a>
+          <a href="/contact" className="hover:text-pink-600 transition">Contact</a>
         </div>
       </nav>
 
