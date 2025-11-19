@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import SidebarNav from "./SidebarNav";
-import { Users, Search, PlusCircle, Mail, ArrowLeft, Target, Clock, Shield } from 'lucide-react';
+import { Users, Search, PlusCircle, Mail, ArrowLeft, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const TabButton = ({ label, icon, active, onClick }) => (

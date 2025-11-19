@@ -48,6 +48,8 @@ export default function Login() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Login failed");
+      // Save user data to localStorage for later use
+      localStorage.setItem('user', JSON.stringify(data));
       setSuccess("Login successful! Redirecting...");
       setTimeout(() => navigate("/main"), 1200);
     } catch (error) {
@@ -80,6 +82,8 @@ export default function Login() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Login failed");
+      // Save user data to localStorage for later use
+      localStorage.setItem('user', JSON.stringify(data));
       setSuccess("Login successful! Redirecting...");
       setTimeout(() => navigate("/main"), 1200);
     } catch (error) {

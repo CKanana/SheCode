@@ -4,7 +4,6 @@ import {
   Bell,
   MessageSquare,
   ArrowRight,
-  Search,
   Plus,
   Star,
   Award,
